@@ -51,7 +51,11 @@ namespace FAT16 {
         le u16    StartingCluster;
         le u32    FileSize;              // File size in bytes
 
-        char data[FileSize] @ dataStart + ((StartingCluster - 2) * bytesPerCluster);
+        try {
+            char data[FileSize] @ dataStart + ((StartingCluster - 2) * bytesPerCluster);
+        } catch {
+            char data[1] @ dataStart + ((StartingCluster - 2) * bytesPerCluster);
+        }
     };
 
     // VFAT Long File Name (LFN) entry
