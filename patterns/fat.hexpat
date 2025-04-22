@@ -3,6 +3,9 @@ namespace FAT16 {
 
     u64 bytesPerCluster;
     
+    u64 FATStart;
+    u64 FATSize;
+
     u64 rootDirStart;
     u64 dataStart;
 
@@ -30,12 +33,19 @@ namespace FAT16 {
         char    BootCode[448];
         u16     Signature;           // Boot sector signature (0x55AA)
 
+        FATStart = ReservedSectors * BytesPerSector;
+        FATSize = SectorsPerFAT16 * BytesPerSector;
+
         rootDirStart = (ReservedSectors + (FATCount * SectorsPerFAT16)) * BytesPerSector;
         dataStart = rootDirStart + (RootEntryCount * 32);
 
         bytesPerCluster = SectorsPerCluster * BytesPerSector;
     };
 
+    struct FATEntry {
+        u8 content[FATSize];
+    };
+    
     struct FAT_DirectoryEntry {
         char      Name[8];               // File name
         char      Extension[3];          // File extension
@@ -72,3 +82,7 @@ namespace FAT16 {
         char16    Name3[2];              // Last 2 characters
     };
 }
+
+FAT16::FAT_BootSector bootSect @ 0;
+FAT16::FATEntry FATs[bootSect.FATCount] @ FATStart;
+FAT16::FAT_DirectoryEntry root_entries[bootSect.RootEntryCount] @ rootDirStart;
